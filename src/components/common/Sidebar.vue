@@ -46,64 +46,41 @@
                     {
                         icon: 'el-icon-lx-cascades',
                         index: 'table',
-                        title: '基础表格'
+                        title: '家庭管理'
                     },
                     {
                         icon: 'el-icon-lx-copy',
                         index: 'tabs',
-                        title: 'tab选项卡'
+                        title: '设备管理'
                     },
                     {
                         icon: 'el-icon-lx-calendar',
                         index: '3',
-                        title: '表单相关',
+                        title: '售后服务',
                         subs: [
                             {
                                 index: 'form',
-                                title: '基本表单'
-                            },
-                            {
-                                index: '3-2',
-                                title: '三级菜单',
-                                subs: [
-                                    {
-                                        index: 'editor',
-                                        title: '富文本编辑器'
-                                    },
-                                    {
-                                        index: 'markdown',
-                                        title: 'markdown编辑器'
-                                    },
-                                ]
-                            },
-                            {
-                                index: 'upload',
-                                title: '文件上传'
+                                title: '反馈信息'
                             }
                         ]
                     },
                     {
-                        icon: 'el-icon-lx-emoji',
-                        index: 'icon',
-                        title: '自定义图标'
-                    },
-                    {
                         icon: 'el-icon-lx-favor',
                         index: 'charts',
-                        title: 'schart图表'
+                        title: '软件版本管理'
                     },
                     {
                         icon: 'el-icon-rank',
                         index: '6',
-                        title: '拖拽组件',
+                        title: '页面管理',
                         subs: [
                             {
                                 index: 'drag',
-                                title: '拖拽列表',
+                                title: 'App新闻管理',
                             },
                             {
                                 index: 'dialog',
-                                title: '拖拽弹框',
+                                title: '常见问题管理',
                             }
                         ]
                     },
@@ -114,7 +91,7 @@
                         subs: [
                             {
                                 index: 'permission',
-                                title: '权限测试'
+                                title: '后台用户管理'
                             },
                             {
                                 index: '404',

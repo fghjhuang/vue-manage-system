@@ -27,17 +27,17 @@ export default new Router({
                 {
                     path: '/table',
                     component: resolve => require(['../components/page/BaseTable.vue'], resolve),
-                    meta: { title: '基础表格' }
+                    meta: { title: '家庭管理' }
                 },
                 {
                     path: '/tabs',
                     component: resolve => require(['../components/page/Tabs.vue'], resolve),
-                    meta: { title: 'tab选项卡' }
+                    meta: { title: '设备管理' }
                 },
                 {
                     path: '/form',
                     component: resolve => require(['../components/page/BaseForm.vue'], resolve),
-                    meta: { title: '基本表单' }
+                    meta: { title: '反馈信息' }
                 },
                 {
                     // 富文本编辑器组件
@@ -61,25 +61,25 @@ export default new Router({
                     // vue-schart组件
                     path: '/charts',
                     component: resolve => require(['../components/page/BaseCharts.vue'], resolve),
-                    meta: { title: 'schart图表' }
+                    meta: { title: '软件版本管理' }
                 },
                 {
                     // 拖拽列表组件
                     path: '/drag',
                     component: resolve => require(['../components/page/DragList.vue'], resolve),
-                    meta: { title: '拖拽列表' }
+                    meta: { title: 'App新闻管理' }
                 },
                 {
                     // 拖拽Dialog组件
                     path: '/dialog',
                     component: resolve => require(['../components/page/DragDialog.vue'], resolve),
-                    meta: { title: '拖拽弹框' }
+                    meta: { title: '常见问题管理' }
                 },
                 {
                     // 权限页面
                     path: '/permission',
                     component: resolve => require(['../components/page/Permission.vue'], resolve),
-                    meta: { title: '权限测试', permission: true }
+                    meta: { title: '后台用户管理', permission: true }
                 },
                 {
                     path: '/404',
