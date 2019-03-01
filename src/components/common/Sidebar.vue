@@ -45,57 +45,57 @@
                     },
                     {
                         icon: 'el-icon-lx-cascades',
-                        index: 'table',
+                        index: 'familymanagement',
                         title: '家庭管理'
                     },
                     {
                         icon: 'el-icon-lx-copy',
-                        index: 'tabs',
+                        index: 'devicemanagement',
                         title: '设备管理'
                     },
                     {
                         icon: 'el-icon-lx-calendar',
-                        index: '3',
+                        index: '1',
                         title: '售后服务',
                         subs: [
                             {
-                                index: 'form',
+                                index: 'feedbackinfo',
                                 title: '反馈信息'
                             }
                         ]
                     },
                     {
                         icon: 'el-icon-lx-favor',
-                        index: 'charts',
+                        index: 'vercontrol',
                         title: '软件版本管理'
                     },
                     {
                         icon: 'el-icon-rank',
-                        index: '6',
+                        index: '2',
                         title: '页面管理',
                         subs: [
                             {
-                                index: 'drag',
+                                index: 'newsmanagement',
                                 title: 'App新闻管理',
                             },
                             {
-                                index: 'dialog',
+                                index: 'normalmanagement',
                                 title: '常见问题管理',
                             }
                         ]
                     },
                     {
                         icon: 'el-icon-lx-warn',
-                        index: '7',
-                        title: '错误处理',
+                        index: '3',
+                        title: '系统设置',
                         subs: [
                             {
                                 index: 'permission',
                                 title: '后台用户管理'
                             },
                             {
-                                index: '404',
-                                title: '404页面'
+                                index: 'serverlog',
+                                title: '服务日志查看'
                             }
                         ]
                     }

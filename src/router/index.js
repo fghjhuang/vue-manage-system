@@ -20,58 +20,35 @@ export default new Router({
                     meta: { title: '系统首页' }
                 },
                 {
-                    path: '/icon',
-                    component: resolve => require(['../components/page/Icon.vue'], resolve),
-                    meta: { title: '自定义图标' }
-                },
-                {
-                    path: '/table',
+                    path: '/familymanagement',
                     component: resolve => require(['../components/page/BaseTable.vue'], resolve),
                     meta: { title: '家庭管理' }
                 },
                 {
-                    path: '/tabs',
-                    component: resolve => require(['../components/page/Tabs.vue'], resolve),
+                    path: '/devicemanagement',
+                    component: resolve => require(['../components/page/BaseForm.vue'], resolve),
                     meta: { title: '设备管理' }
                 },
                 {
-                    path: '/form',
-                    component: resolve => require(['../components/page/BaseForm.vue'], resolve),
+                    path: '/feedbackinfo',
+                    component: resolve => require(['../components/page/Tabs.vue'], resolve),
                     meta: { title: '反馈信息' }
                 },
                 {
-                    // 富文本编辑器组件
-                    path: '/editor',
-                    component: resolve => require(['../components/page/VueEditor.vue'], resolve),
-                    meta: { title: '富文本编辑器' }
-                },
-                {
-                    // markdown组件
-                    path: '/markdown',
-                    component: resolve => require(['../components/page/Markdown.vue'], resolve),
-                    meta: { title: 'markdown编辑器' }    
-                },
-                {
-                    // 图片上传组件
-                    path: '/upload',
-                    component: resolve => require(['../components/page/Upload.vue'], resolve),
-                    meta: { title: '文件上传' }   
-                },
-                {
                     // vue-schart组件
-                    path: '/charts',
+                    path: '/vercontrol',
                     component: resolve => require(['../components/page/BaseCharts.vue'], resolve),
                     meta: { title: '软件版本管理' }
                 },
                 {
                     // 拖拽列表组件
-                    path: '/drag',
+                    path: '/newsmanagement',
                     component: resolve => require(['../components/page/DragList.vue'], resolve),
                     meta: { title: 'App新闻管理' }
                 },
                 {
                     // 拖拽Dialog组件
-                    path: '/dialog',
+                    path: '/normalmanagement',
                     component: resolve => require(['../components/page/DragDialog.vue'], resolve),
                     meta: { title: '常见问题管理' }
                 },
@@ -82,14 +59,9 @@ export default new Router({
                     meta: { title: '后台用户管理', permission: true }
                 },
                 {
-                    path: '/404',
+                    path: '/serverlog',
                     component: resolve => require(['../components/page/404.vue'], resolve),
-                    meta: { title: '404' }
-                },
-                {
-                    path: '/403',
-                    component: resolve => require(['../components/page/403.vue'], resolve),
-                    meta: { title: '403' }
+                    meta: { title: '服务日志查看' }
                 }
             ]
         },
