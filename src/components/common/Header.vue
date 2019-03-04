@@ -14,14 +14,14 @@
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
-                <div class="btn-bell">
-                    <el-tooltip effect="dark" :content="message?`有${message}条未读消息`:`消息中心`" placement="bottom">
-                        <router-link to="/tabs">
-                            <i class="el-icon-bell"></i>
-                        </router-link>
-                    </el-tooltip>
-                    <span class="btn-bell-badge" v-if="message"></span>
-                </div>
+                <!--<div class="btn-bell">-->
+                    <!--&lt;!&ndash;<el-tooltip effect="dark" :content="message?`有${message}条未读消息`:`消息中心`" placement="bottom">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<router-link to="/tabs">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<i class="el-icon-bell"></i>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</router-link>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</el-tooltip>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<span class="btn-bell-badge" v-if="message"></span>&ndash;&gt;-->
+                <!--</div>-->
                 <!-- 用户头像 -->
                 <div class="user-avator"><img src="../../assets/img/img.jpg"></div>
                 <!-- 用户名下拉菜单 -->
@@ -31,10 +31,7 @@
                     </span>
                     <el-dropdown-menu slot="dropdown">
                         <a href="http://blog.gdfengshuo.com/about/" target="_blank">
-                            <el-dropdown-item>关于作者</el-dropdown-item>
-                        </a>
-                        <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
-                            <el-dropdown-item>项目仓库</el-dropdown-item>
+                            <el-dropdown-item>个人信息</el-dropdown-item>
                         </a>
                         <el-dropdown-item divided  command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
