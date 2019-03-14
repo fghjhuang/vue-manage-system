@@ -2,15 +2,15 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-cascades"></i> 基础表格</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-cascades"></i> 常见问题管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="handle-box">
                 <el-button type="danger" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
-                <el-button type="primary" icon="add" @click="search">添加常见问题</el-button>
+                <el-button type="primary" icon="add" @click="addQna">添加常见问题</el-button>
             </div>
-            <el-table :data="qna" border class="table" ref="multipleTable" @selection-change="handleSelectionChange">
+            <el-table :data="qnashowlist" border class="table" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="head" label="标题" sortable width="150">
                 </el-table-column>
@@ -26,24 +26,31 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
+                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="qnasize">
                 </el-pagination>
             </div>
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+        <el-dialog :title="edittitle" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" label-width="50px">
-                <el-form-item label="日期">
-                    <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
+                <el-form-item label="标题">
+                    <el-input v-model="form.head"
+                    ></el-input>
                 </el-form-item>
-                <el-form-item label="姓名">
-                    <el-input v-model="form.name"></el-input>
+                <el-form-item label="url">
+                    <el-input
+                            v-model="form.url"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 5}"
+                    ></el-input>
                 </el-form-item>
-                <el-form-item label="地址">
-                    <el-input v-model="form.address"></el-input>
+                <el-form-item label="内容">
+                    <el-input type="textarea"
+                              :autosize="{ minRows: 2, maxRows: 8}"
+                              v-model="form.content">
+                    </el-input>
                 </el-form-item>
-
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editVisible = false">取 消</el-button>
@@ -53,7 +60,7 @@
 
         <!-- 删除提示框 -->
         <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
-            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <div class="del-dialog-cnt">{{delMassage}}</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="delVisible = false">取 消</el-button>
                 <el-button type="primary" @click="deleteRow">确 定</el-button>
@@ -67,7 +74,6 @@
         name: 'basetable',
         data() {
             return {
-                url: './vuetable.json',
                 qna: [{
                     head: "红外控制不了",
                     content: "如果红外线控制失败，请检查是否同时有其他红外设备正在使用",
@@ -84,42 +90,34 @@
                         url: "http://www.baidu.com"
                     }
                 ],
+                edittitle:"编辑",
+                editdialogtype:1,//1->add,2->edit
+                deldiaolgtype:1,//1->delete all, 2->delete item
+                delMassage:"",
                 cur_page: 1,
                 multipleSelection: [],
-                select_cate: '',
-                select_word: '',
                 del_list: [],
-                is_search: false,
                 editVisible: false,
                 delVisible: false,
                 form: {
-                    name: '',
-                    date: '',
-                    address: ''
+                    head: '',
+                    content: '',
+                    url: ''
                 },
                 idx: -1
             }
         },
         created() {
-            this.getData();
+
         },
         computed: {
-            data() {
-                return this.tableData.filter((d) => {
-                    let is_del = false;
-                    for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.name === this.del_list[i].name) {
-                            is_del = true;
-                            break;
-                        }
-                    }
-                    if (!is_del) {
-                        if (d.address.indexOf(this.select_cate) > -1 &&
-                            (d.name.indexOf(this.select_word) > -1 ||
-                                d.address.indexOf(this.select_word) > -1)
-                        ) {
-                            return d;
-                        }
+            qnasize(){
+                return this.qna.length;
+            },
+            qnashowlist() {
+                return this.qna.filter((d,pos) => {
+                    if (parseInt(pos/10)===(this.cur_page-1)){
+                        return d;
                     }
                 })
             }
@@ -128,9 +126,18 @@
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
+                console.log("cur page:"+this.cur_page);
             },
-            search() {
-                this.is_search = true;
+            // 添加常见问题
+            addQna() {
+                this.editdialogtype=1;
+                this.edittitle="添加常见问题";
+                this.editVisible = true;
+                this.form = {
+                    head: "",
+                    content: "",
+                    url: ""
+                };
             },
             formatter(row, column) {
                 return row.content;
@@ -139,43 +146,68 @@
                 return row.tag === value;
             },
             handleEdit(index, row) {
+                this.editdialogtype=2;
+                this.edittitle="编辑常见问题";
                 this.idx = index;
-                const item = this.tableData[index];
+                const item = this.qna[index];
                 this.form = {
-                    name: item.name,
-                    date: item.date,
-                    address: item.address
+                    head: item.head,
+                    content: item.content,
+                    url: item.url
                 };
                 this.editVisible = true;
             },
             handleDelete(index, row) {
                 this.idx = index;
+                this.deldiaolgtype=2;
+                this.delMassage ="删除不可恢复，是否确定删除？";
                 this.delVisible = true;
             },
             delAll() {
+                this.deldiaolgtype=1;
                 const length = this.multipleSelection.length;
-                let str = '';
-                this.del_list = this.del_list.concat(this.multipleSelection);
-                for (let i = 0; i < length; i++) {
-                    str += this.multipleSelection[i].name + ' ';
-                }
-                this.$message.error('删除了' + str);
-                this.multipleSelection = [];
+                this.delMassage ="你将要删除"+length+"组数据，删除不可恢复，是否确定删除？";
+                this.delVisible = true;
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
             // 保存编辑
             saveEdit() {
-                this.$set(this.tableData, this.idx, this.form);
-                this.editVisible = false;
-                this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                switch (this.editdialogtype) {
+                    case 1:// add
+                        this.qna.unshift(this.form);
+                        this.$message.success(`添加常见问题成功`);
+                        this.editVisible = false;
+                        break;
+                    case 2: // edit
+                        this.$set(this.qna, this.idx, this.form);
+                        this.editVisible = false;
+                        this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                        break;
+                }
+               // console.log("qnasize:"+this.qnasize);
             },
             // 确定删除
             deleteRow(){
-                this.tableData.splice(this.idx, 1);
-                this.$message.success('删除成功');
-                this.delVisible = false;
+                switch (this.deldiaolgtype) {
+                    case 1:
+                        const length = this.multipleSelection.length;
+                        for (let i = 0; i < length; i++) {
+                            let pos=this.qna.indexOf(this.multipleSelection[i]);
+                            this.qna.splice(pos,1);
+                        }
+                        this.$message.success('删除成功');
+                        this.multipleSelection = [];
+                        this.delVisible = false;
+                        break;
+                    case 2:
+                        this.qna.splice(this.idx, 1);
+                        this.$message.success('删除成功');
+                        this.delVisible = false;
+                        break;
+                }
+
             }
         }
     }
