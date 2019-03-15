@@ -112,6 +112,9 @@
                 <!--简家新闻信息配置-->
                 <div style="min-width: 800px; margin-left: 16px;">
                     <el-card>
+                        <el-button type="primary">添加新闻</el-button>
+                        <br/>
+                        <br/>
                         <el-tabs  type="card" @tab-click="handleTagClick">
                             <el-tab-pane label="简家新闻" name="litehomenews"></el-tab-pane>
                             <el-tab-pane label="智能家居新闻" name="smarthomenews" ></el-tab-pane>
@@ -145,6 +148,11 @@
                                 </template>
                             </el-table-column>
                         </el-table>
+
+                        <div class="pagination">
+                            <el-pagination background @current-change="handlePageChange" layout="prev, pager, next" :total="newsdatasize">
+                            </el-pagination>
+                        </div>
                     </el-card>
 
                 </div>
@@ -209,6 +217,9 @@
             }
         },
         computed:{
+            newsdatasize(){
+                return this.newsdata.length
+            },
             newsdata(){
                 if (this.selectlitehomenews) {
                     return this.sourcejson.litehomenews
@@ -218,6 +229,10 @@
             }
         },
         methods: {
+            // 新闻页面切换
+            handlePageChange(val){
+
+            },
             // 点击新闻标签
             handleTagClick(tab, event) {
                 switch (tab.name) {
