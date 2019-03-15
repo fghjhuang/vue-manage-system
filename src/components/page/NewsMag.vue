@@ -43,24 +43,113 @@
                 </div>
 
                 <!--头部信息配置-->
-                <div >
-                    <el-input v-model="sourcejson.head[0].headurl"></el-input>
-                    <br/>
-                    <el-input></el-input>
-                    <br/>
-                    <el-input></el-input>
+                <div style="min-width: 350px; margin-right: 16px;">
+                    <el-card >
+                        <div slot="header" >
+                            <span>头部图片1</span>
+                        </div>
+                        <el-row :gutter="10">
+                            <el-col :span="6">
+                                <p>图片url</p>
+                            </el-col>
+                            <el-col :span="15">
+                                <el-input v-model="sourcejson.head[0].headicon"></el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="10">
+                            <el-col :span="6">
+                                <p>跳转url</p>
+                            </el-col>
+                            <el-col :span="15">
+                                <el-input v-model="sourcejson.head[0].headurl"></el-input>
+                            </el-col>
+                        </el-row>
+                    </el-card>
+                    <el-card >
+                        <div slot="header">
+                            <span>头部图片2</span>
+                        </div>
+                        <el-row :gutter="10">
+                            <el-col :span="6">
+                                <p>图片url</p>
+                            </el-col>
+                            <el-col :span="15">
+                                <el-input v-model="sourcejson.head[1].headicon"></el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <p>跳转url</p>
+                            </el-col>
+                            <el-col :span="15">
+                                <el-input v-model="sourcejson.head[1].headurl"></el-input>
+                            </el-col>
+                        </el-row>
+                    </el-card>
+                    <el-card >
+                        <div slot="header">
+                            <span>头部图片3</span>
+                        </div>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <p>图片url</p>
+                            </el-col>
+                            <el-col :span="15">
+                                <el-input v-model="sourcejson.head[2].headicon"></el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <p>跳转url</p>
+                            </el-col>
+                            <el-col :span="15">
+                                <el-input v-model="sourcejson.head[2].headurl"></el-input>
+                            </el-col>
+                        </el-row>
+                    </el-card>
                 </div>
 
                 <!--简家新闻信息配置-->
-                <div >
-
-                </div>
-
-                <!--智能家居新闻配置-->
-                <div>
+                <div style="min-width: 800px; margin-left: 16px;">
+                    <el-card>
+                        <el-tabs  type="card" @tab-click="handleTagClick">
+                            <el-tab-pane label="简家新闻" name="litehomenews"></el-tab-pane>
+                            <el-tab-pane label="智能家居新闻" name="smarthomenews" ></el-tab-pane>
+                        </el-tabs>
+                        <el-table
+                                :data="newsdata"
+                                border
+                                style="width: 100%">
+                            <el-table-column
+                                    prop="title"
+                                    label="标题"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="url"
+                                    label="姓名"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="pic"
+                                    label="图片地址">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="timestr"
+                                    label="日期">
+                            </el-table-column>
+                            <el-table-column label="操作" width="120" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="primary" icon="el-icon-edit" circle></el-button>
+                                    <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
 
                 </div>
             </div>
+
             <br/>
             <el-button type="primary" plain size="medium " @click="preview">预览</el-button>
             <el-button type="success" plain size="medium " @click="effectiveVisible = true">保存</el-button>
@@ -79,7 +168,6 @@
 
 <script>
     export default {
-        name: 'draglist',
         data() {
             return {
                 sourcejson:{
@@ -108,23 +196,39 @@
                         "title": "苹果HomeKit再起风：年增百款新品 一大波厂商涌入",
                         "url": "http://www.techweb.com.cn/viewpoint/2018-05-30/2669947.shtml",
                         "pic": "http://upload.techweb.com.cn/s/640/2018/0530/1527645263927.jpg",
-                        "type": "global",
                         "timestr": "2018-05-30"
                     }, {
                         "title": "小米智能家居产品进军美国 全面采用Google语音助手",
                         "url": "http://news.jstv.com/a/20180515/152636512059.shtml",
                         "pic": "",
-                        "type": "global",
                         "timestr": "2018-05-23"
                     }]
                 },
-                effectiveVisible:false
+                effectiveVisible:false,
+                selectlitehomenews:false
             }
         },
-        components:{
-
+        computed:{
+            newsdata(){
+                if (this.selectlitehomenews) {
+                    return this.sourcejson.litehomenews
+                }else{
+                    return this.sourcejson.globalnews
+                }
+            }
         },
         methods: {
+            // 点击新闻标签
+            handleTagClick(tab, event) {
+                switch (tab.name) {
+                    case "litehomenews":
+                        this.selectlitehomenews=true;
+                        break;
+                    case "smarthomenews":
+                        this.selectlitehomenews=false;
+                        break;
+                }
+            },
             // 保存配置信息
             effectiveData(){
                 this.effectiveVisible=false;
@@ -146,18 +250,7 @@
 </script>
 
 <style scoped>
-    .white{
-        background-color: white;
-        text-align: center;
-    }
-    .red{
-        background-color: red;
-        height: 30px;
-        text-align: center;
-    }
-    .blue{
-        background-color: blue;
-    }
+
     .img{
         width:100%;
         height:auto;
