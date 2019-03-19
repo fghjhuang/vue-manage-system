@@ -22,9 +22,7 @@
                                     <span>简家新闻</span>
                                     <el-button style="float: right; padding: 3px 0" type="text">更多></el-button>
                                 </div>
-                                <div v-for="o in 2" :key="o" class="text item">
-                                    {{'简家新闻 ' + o }}
-                                </div>
+                                <NewsPreviewItem v-for="(news,index) in previewLitehomenews" :key="index" class="text item" :news="news"/>
                             </el-card>
                         </div>
                         <br/>
@@ -34,9 +32,7 @@
                                     <span>智能家居新闻</span>
                                     <el-button style="float: right; padding: 3px 0" type="text">更多></el-button>
                                 </div>
-                                <div v-for="o in 2" :key="o" class="text item">
-                                    {{'智能家居新闻 ' + o }}
-                                </div>
+                                <NewsPreviewItem v-for="(news,index) in previewSmarthomenews" :key="index" class="text item" :news="news"/>
                             </el-card>
                         </div>
                     </div>
@@ -112,7 +108,7 @@
                 <!--简家新闻信息配置-->
                 <div style="min-width: 800px; margin-left: 16px;">
                     <el-card>
-                        <el-button type="primary">添加新闻</el-button>
+                        <el-button type="primary" @click="addNews">添加新闻</el-button>
                         <br/>
                         <br/>
                         <el-tabs  type="card" @tab-click="handleTagClick">
@@ -120,7 +116,7 @@
                             <el-tab-pane label="智能家居新闻" name="smarthomenews" ></el-tab-pane>
                         </el-tabs>
                         <el-table
-                                :data="newsdata"
+                                :data="shownewsdata"
                                 border
                                 style="width: 100%">
                             <el-table-column
@@ -130,21 +126,23 @@
                             </el-table-column>
                             <el-table-column
                                     prop="url"
-                                    label="姓名"
+                                    label="跳转地址"
                                     width="180">
                             </el-table-column>
                             <el-table-column
+                                    width="180"
                                     prop="pic"
                                     label="图片地址">
                             </el-table-column>
                             <el-table-column
+                                    width="100"
                                     prop="timestr"
                                     label="日期">
                             </el-table-column>
                             <el-table-column label="操作" width="120" align="center">
                                 <template slot-scope="scope">
-                                    <el-button type="primary" icon="el-icon-edit" circle></el-button>
-                                    <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                                    <el-button type="primary" icon="el-icon-edit" circle @click="editNews(scope.$index, scope.row)"></el-button>
+                                    <el-button type="danger" icon="el-icon-delete" circle @click="deleteNews(scope.$index, scope.row)"></el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -159,10 +157,55 @@
             </div>
 
             <br/>
-            <el-button type="primary" plain size="medium " @click="preview">预览</el-button>
             <el-button type="success" plain size="medium " @click="effectiveVisible = true">保存</el-button>
         </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog :title="edittitle" :visible.sync="editVisible" width="30%">
+            <el-form ref="form" :model="form" label-width="50px">
+                <el-form-item label="标题">
+                    <el-input v-model="form.title"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="url">
+                    <el-input
+                            v-model="form.url"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 5}"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="图片链接">
+                    <el-input
+                            v-model="form.pic"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 5}"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="日期">
+                    <el-date-picker
+                            v-model="form.timestr"
+                            type="date"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期">
+                    </el-date-picker>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveEdit">确 定</el-button>
+            </span>
+        </el-dialog>
+
         <!-- 删除提示框 -->
+        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delVisible = false">取 消</el-button>
+                <el-button type="primary" @click="deleteNewsConfirm">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 保存提示框 -->
         <el-dialog title="提示" :visible.sync="effectiveVisible" width="300px" center>
             <div class="del-dialog-cnt">确认保存吗？如果保存会马上生效！请考虑清楚！</div>
             <span slot="footer" class="dialog-footer">
@@ -175,6 +218,7 @@
 </template>
 
 <script>
+    import NewsPreviewItem from './NewsPreviewItem.vue'
     export default {
         data() {
             return {
@@ -213,25 +257,124 @@
                     }]
                 },
                 effectiveVisible:false,
-                selectlitehomenews:false
+                selectlitehomenews:false,
+                editVisible:false,
+                delVisible:false,
+                form:{
+                    title:"",
+                    url:"",
+                    pic:"",
+                    timestr:""
+                },
+                idx:-1,
+                edittitle:"",
+                editdialogtype:1,
+                cur_page:1,
             }
         },
         computed:{
-            newsdatasize(){
-                return this.newsdata.length
+            previewLitehomenews(){
+              return [this.sourcejson.litehomenews[0],this.sourcejson.litehomenews[1]]
             },
-            newsdata(){
+            previewSmarthomenews(){
+                return [this.sourcejson.globalnews[0],this.sourcejson.globalnews[1]]
+            },
+            // 显示新闻长度
+            newsdatasize(){
+                return this.selectedDataGroup.length
+            },
+            // 显示的新闻的数组
+            selectedDataGroup(){
                 if (this.selectlitehomenews) {
                     return this.sourcejson.litehomenews
                 }else{
                     return this.sourcejson.globalnews
                 }
+            },
+            // 显示的当前页面的新闻数组
+            shownewsdata(){
+                if (this.selectlitehomenews) {
+                    return this.sourcejson.litehomenews.filter((d,pos) => {
+                        if (parseInt(pos/10)===(this.cur_page-1)){
+                            return d;
+                        }
+                    })
+                }else{
+                    return this.sourcejson.globalnews.filter((d,pos) => {
+                        if (parseInt(pos/10)===(this.cur_page-1)){
+                            return d;
+                        }
+                    })
+                }
             }
         },
         methods: {
+            // 添加新闻
+            addNews(){
+                this.editdialogtype=1;
+                this.edittitle="添加新闻";
+                this.editVisible = true;
+                this.form = {
+                    head: "",
+                    content: "",
+                    url: ""
+                };
+            },
+            // 保存修改的新闻
+            saveEdit(){
+                switch (this.editdialogtype) {
+                    case 1:// add
+                        if (this.selectlitehomenews) {
+                            this.sourcejson.litehomenews.unshift(this.form);
+                        }else{
+                            this.sourcejson.globalnews.unshift(this.form);
+                        }
+                        this.$message.success(`添加新闻成功`);
+                        this.editVisible = false;
+                        break;
+                    case 2: // edit
+                        if (this.selectlitehomenews) {
+                            this.$set( this.sourcejson.litehomenews, this.idx, this.form);
+                        }else{
+                            this.$set(this.sourcejson.globalnews, this.idx, this.form);
+                        }
+                        this.editVisible = false;
+                        this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                        break;
+                }
+            },
+            // 编辑新闻
+            editNews(index, itemObject){
+                this.editdialogtype=2;
+                this.edittitle="编辑新闻";
+                this.idx =this.selectedDataGroup.indexOf(itemObject);
+                const item = this.shownewsdata[index];
+                this.form = {
+                    title:item.title,
+                    url:item.url,
+                    pic:item.pic,
+                    timestr:item.timestr
+                };
+                this.editVisible = true;
+            },
+            // 删除新闻
+            deleteNews(index,itemObject){
+                this.idx =this.selectedDataGroup.indexOf(itemObject);
+                console.log("index:"+this.idx);
+                this.delVisible = true;
+            },
+            deleteNewsConfirm(){
+                if (this.selectlitehomenews) {
+                    this.sourcejson.litehomenews.splice(this.idx, 1);
+                }else{
+                    this.sourcejson.globalnews.splice(this.idx, 1);
+                }
+                this.$message.success('删除成功');
+                this.delVisible = false;
+            },
             // 新闻页面切换
             handlePageChange(val){
-
+                this.cur_page = val;
             },
             // 点击新闻标签
             handleTagClick(tab, event) {
@@ -243,10 +386,12 @@
                         this.selectlitehomenews=false;
                         break;
                 }
+                this.cur_page =1; // 切换的时候回到第1页
             },
             // 保存配置信息
             effectiveData(){
                 this.effectiveVisible=false;
+                this.$message.success('保存成功');
             },
             // 预览界面
             preview(){
@@ -259,6 +404,9 @@
         // 初始化请求图片
         mounted() {
 
+        },
+        components:{
+            NewsPreviewItem
         }
     }
 

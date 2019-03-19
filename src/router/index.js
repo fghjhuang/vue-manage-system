@@ -20,6 +20,11 @@ export default new Router({
                     meta: { title: '系统首页' }
                 },
                 {
+                    path: '/usermanagement',
+                    component: resolve => require(['../components/page/UserMag.vue'], resolve),
+                    meta: { title: '用户管理' }
+                },
+                {
                     path: '/familymanagement',
                     component: resolve => require(['../components/page/FamilyMag.vue'], resolve),
                     meta: { title: '家庭管理' }

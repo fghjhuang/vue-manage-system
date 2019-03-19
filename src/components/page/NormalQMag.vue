@@ -126,7 +126,6 @@
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
-                console.log("cur page:"+this.cur_page);
             },
             // 添加常见问题
             addQna() {
@@ -148,7 +147,7 @@
             handleEdit(index, row) {
                 this.editdialogtype=2;
                 this.edittitle="编辑常见问题";
-                this.idx = index;
+                this.idx = this.qna.indexOf(item);
                 const item = this.qna[index];
                 this.form = {
                     head: item.head,
@@ -157,8 +156,8 @@
                 };
                 this.editVisible = true;
             },
-            handleDelete(index, row) {
-                this.idx = index;
+            handleDelete(index, item) {
+                this.idx = this.qna.indexOf(item);
                 this.deldiaolgtype=2;
                 this.delMassage ="删除不可恢复，是否确定删除？";
                 this.delVisible = true;

@@ -43,6 +43,11 @@
                         title: '系统首页'
                     },
                     {
+                        icon: 'el-icon-lx-service',
+                        index: 'usermanagement',
+                        title: '用户管理'
+                    },
+                    {
                         icon: 'el-icon-lx-cascades',
                         index: 'familymanagement',
                         title: '家庭管理'
