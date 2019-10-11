@@ -49,8 +49,8 @@
                     },
                     {
                         icon: 'el-icon-lx-cascades',
-                        index: 'familymanagement',
-                        title: '家庭管理'
+                        index: 'gatewaymanagement',
+                        title: '网关管理'
                     },
                     {
                         icon: 'el-icon-lx-copy',

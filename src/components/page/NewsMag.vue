@@ -5,42 +5,14 @@
                 <el-breadcrumb-item><i class="el-icon-rank"></i> App新闻管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
-        <div class="container">
-            <div class="drag-box">
-                <div class="drag-box-item">
-                    <div class="item-title">App页面预览</div>
-                    <div class="block">
-                        <el-carousel trigger="click" height="150px">
-                            <el-carousel-item v-for="(item,index) in sourcejson.head" :key="index">
-                                <a :href=item.headurl target="view_window"><img class="img" :src=item.headicon /></a>
-                            </el-carousel-item>
-                        </el-carousel>
-                        <br/>
-                        <div>
-                            <el-card class="box-card">
-                                <div slot="header" class="clearfix">
-                                    <span>简家新闻</span>
-                                    <el-button style="float: right; padding: 3px 0" type="text">更多></el-button>
-                                </div>
-                                <NewsPreviewItem v-for="(news,index) in previewLitehomenews" :key="index" class="text item" :news="news"/>
-                            </el-card>
-                        </div>
-                        <br/>
-                        <div>
-                            <el-card class="box-card">
-                                <div slot="header" class="clearfix">
-                                    <span>智能家居新闻</span>
-                                    <el-button style="float: right; padding: 3px 0" type="text">更多></el-button>
-                                </div>
-                                <NewsPreviewItem v-for="(news,index) in previewSmarthomenews" :key="index" class="text item" :news="news"/>
-                            </el-card>
-                        </div>
-                    </div>
-                </div>
 
+        <div class="container" style="width: 95%">
+
+            <!--标题头配置-->
+            <div class="drag-box">
                 <!--头部信息配置-->
-                <div style="min-width: 350px; margin-right: 16px;">
-                    <el-card >
+                <el-row :gutter="5">
+                    <el-col :span="8"><el-card >
                         <div slot="header" >
                             <span>头部图片1</span>
                         </div>
@@ -60,8 +32,8 @@
                                 <el-input v-model="sourcejson.head[0].headurl"></el-input>
                             </el-col>
                         </el-row>
-                    </el-card>
-                    <el-card >
+                    </el-card></el-col>
+                    <el-col :span="8"><el-card >
                         <div slot="header">
                             <span>头部图片2</span>
                         </div>
@@ -81,8 +53,8 @@
                                 <el-input v-model="sourcejson.head[1].headurl"></el-input>
                             </el-col>
                         </el-row>
-                    </el-card>
-                    <el-card >
+                    </el-card></el-col>
+                    <el-col :span="8"><el-card >
                         <div slot="header">
                             <span>头部图片3</span>
                         </div>
@@ -101,12 +73,13 @@
                             <el-col :span="15">
                                 <el-input v-model="sourcejson.head[2].headurl"></el-input>
                             </el-col>
-                        </el-row>
-                    </el-card>
-                </div>
+                        </el-row></el-card></el-col>
+                </el-row>
+            </div>
 
-                <!--简家新闻信息配置-->
-                <div style="min-width: 800px; margin-left: 16px;">
+            <!--简家新闻信息配置-->
+            <div class="drag-box">
+                <div style="min-width: 800px; width: 100%">
                     <el-card>
                         <el-button type="primary" @click="addNews">添加新闻</el-button>
                         <br/>
@@ -122,15 +95,15 @@
                             <el-table-column
                                     prop="title"
                                     label="标题"
-                                    width="180">
+                                    width="280">
                             </el-table-column>
                             <el-table-column
                                     prop="url"
                                     label="跳转地址"
-                                    width="180">
+                                    width="280">
                             </el-table-column>
                             <el-table-column
-                                    width="180"
+                                    width="280"
                                     prop="pic"
                                     label="图片地址">
                             </el-table-column>
@@ -152,13 +125,62 @@
                             </el-pagination>
                         </div>
                     </el-card>
-
                 </div>
             </div>
 
+
             <br/>
-            <el-button type="success" plain size="medium " @click="effectiveVisible = true">保存</el-button>
+
+            <el-row :gutter="5">
+                <el-col :span="16">   <div class="handle-box">
+                    <div class="drag-box-item">
+                        <div class="item-title">App页面预览</div>
+                        <div class="block">
+                            <el-carousel trigger="click" height="150px">
+                                <el-carousel-item v-for="(item,index) in sourcejson.head" :key="index">
+                                    <a :href=item.headurl target="view_window"><img class="img" :src=item.headicon /></a>
+                                </el-carousel-item>
+                            </el-carousel>
+                            <br/>
+                            <div>
+                                <el-card class="box-card">
+                                    <div slot="header" class="clearfix">
+                                        <span>简家新闻</span>
+                                        <el-button style="float: right; padding: 3px 0" type="text">更多></el-button>
+                                    </div>
+                                    <NewsPreviewItem v-for="(news,index) in previewLitehomenews" :key="index" class="text item" :news="news"/>
+                                </el-card>
+                            </div>
+                            <br/>
+                            <div>
+                                <el-card class="box-card">
+                                    <div slot="header" class="clearfix">
+                                        <span>智能家居新闻</span>
+                                        <el-button style="float: right; padding: 3px 0" type="text">更多></el-button>
+                                    </div>
+                                    <NewsPreviewItem v-for="(news,index) in previewSmarthomenews" :key="index" class="text item" :news="news"/>
+                                </el-card>
+                            </div>
+                        </div>
+                    </div>
+                </div></el-col>
+
+                <el-col :span="8">
+                    <el-button type="success" plain size="large " @click="effectiveVisible = true">保存所有修改的配置</el-button>
+                </el-col>
+
+            </el-row>
+
+
+
+
+
+
+
+
         </div>
+
+
 
         <!-- 编辑弹出框 -->
         <el-dialog :title="edittitle" :visible.sync="editVisible" width="30%">
@@ -413,7 +435,10 @@
 </script>
 
 <style scoped>
-
+    .el-row {
+        width: 100%;
+        margin-bottom: 20px;
+    }
     .img{
         width:100%;
         height:auto;

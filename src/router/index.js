@@ -25,9 +25,9 @@ export default new Router({
                     meta: { title: '用户管理' }
                 },
                 {
-                    path: '/familymanagement',
-                    component: resolve => require(['../components/page/FamilyMag.vue'], resolve),
-                    meta: { title: '家庭管理' }
+                    path: '/gatewaymanagement',
+                    component: resolve => require(['../components/page/GatewayMag.vue'], resolve),
+                    meta: { title: '网关管理' }
                 },
                 {
                     path: '/devicemanagement',
