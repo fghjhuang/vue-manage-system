@@ -261,17 +261,22 @@
             ,
             // 搜索网关
             search() {
-                let request = "{\n" +
-                    "\"start\": " + 0 + ",\n" +
-                    "\"count\": 3,\n" +
-                    "\"gsn\": " + this.search_gateway + ",\n" +
-                    "\"order\":\"gsn\"\n" +
-                    "}";
-                this.$axios.post(this.url, {
-                    condition: request
-                }).then((response) => {
-                    this.gatewaylistdata = response.data;
-                });
+                if (this.search_gateway===""){
+                    this.getData();
+                } else{
+                    let gsndata=this.hex2int(this.processhex(this.search_gateway));
+                    let request = "{\n" +
+                        "\"start\": " + 0 + ",\n" +
+                        "\"count\": 3,\n" +
+                        "\"gsn\": " + gsndata + ",\n" +
+                        "\"order\":\"gsn\"\n" +
+                        "}";
+                    this.$axios.post(this.url, {
+                        condition: request
+                    }).then((response) => {
+                        this.gatewaylistdata = response.data;
+                    });
+                }
             }
             ,
             //格式化显示日期
@@ -360,9 +365,7 @@
             handleEdit(index, row) {
                 this.idx = index;
                 const item = this.gatewaylistdata[index];
-                this.form = {
-                    gname: item.gname,
-                };
+                this.form.gname= item.gname;
                 this.editVisible = true;
             }
             ,
