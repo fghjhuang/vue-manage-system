@@ -3,12 +3,15 @@
             @mouseenter.native="handleEnter(true)"
             @mouseleave.native="handleEnter(false)"
             :style="{backgroundColor:bgColor}">
+
         <el-col  :xs="titlespace" :sm="titlespace" :md="titlespace" :lg="titlespace" :xl="titlespace">
             <p class="titlecss">{{news.title}}</p>
         </el-col>
+
         <el-col  :xs="picspace" :sm="picspace" :md="picspace" :lg="picspace" :xl="picspace">
             <img class="img" :src="news.pic" v-if="showpic"/>
         </el-col>
+
     </el-row>
 </template>
 
@@ -26,6 +29,7 @@
             news:Object
         },
         methods:{
+            // 鼠标移动进去显示的效果
             handleEnter (isEnter) {
                 console.log("mouse:"+isEnter);
                 if(isEnter) { // 进入
@@ -33,7 +37,6 @@
                 } else { // 离开
                     this.bgColor = 'white'
                 }
-
             },
             // 打开新窗口
             gowebsite(){

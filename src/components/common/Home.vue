@@ -20,6 +20,7 @@
     import vSidebar from './Sidebar.vue';
     import vTags from './Tags.vue';
     import bus from './bus';
+    import Qs from 'qs'
     export default {
         data(){
             return {
@@ -33,8 +34,16 @@
         created(){
             bus.$on('collapse', msg => {
                 this.collapse = msg;
-            })
-
+            });
+            // 配置axios参数，头部和json format
+            this.$axios.defaults.headers = {
+                'Content-type': 'application/x-www-form-urlencoded'
+            };
+            this.$axios.defaults.transformRequest=[function (data) {
+                let ret = '';
+                ret = Qs.stringify(data);
+                return ret;
+            }];
             // 只有在标签页列表里的页面才使用keep-alive，即关闭标签之后就不保存到内存中了。
             bus.$on('tags', msg => {
                 let arr = [];

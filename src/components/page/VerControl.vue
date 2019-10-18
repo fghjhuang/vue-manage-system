@@ -14,12 +14,10 @@
                         安卓App内更新检查
                     </div>
                     <br/>
-                    链接地址:<p style="font-size: 14px;user-select:text;">{{versionTitle[0].url}}</p>
+                    链接地址:<p style="font-size: 14px;user-select:text;">{{ver.androidurl}}</p>
                     <br/>
-                    当前版本标识:<el-input  v-model="versionTitle[0].versionCode"></el-input>
+                    当前版本标识:<el-input  v-model="ver.androidversion"></el-input>
                     <br/>
-                    <br/>
-                    当前版本号:<el-input  v-model="versionTitle[0].versionName"></el-input>
                     <br/>
                     <br/>
                     <el-upload
@@ -34,14 +32,8 @@
                     <br/>
                     <el-button type="success" >保存</el-button>
                 </div>
-
             </div>
-
-
-
         </div>
-
-
     </div>
 </template>
 
@@ -50,17 +42,27 @@
         name: 'basecharts',
         components: {},
         data: () => ({
-            versionTitle: [
-                {
-                    versionCode: 10,
-                    versionName:"v1.1.0",
-                    url:"http://www.smartlitehome.top/androidapp/download"
-                }],
+            readurl:"http://localhost:8201/litehouse/about/readinfo",
+            writeurl:"http://localhost:8201/litehouse/about/updateinfo",
+            alldata: [],
+            ver:[]
         }),
-
+        created() {
+            this.initData()
+        },
         methods:{
             handleExceed(files, fileList) {
                 this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+            },
+            initData(){
+                this.getData()
+            },
+            // 获取数据
+            getData(){
+                this.$axios.post(this.readurl).then((response) => {
+                    this.alldata=response.data;
+                    this.ver = this.alldata.updateinfo;
+                });
             },
         }
     }

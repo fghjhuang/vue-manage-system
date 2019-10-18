@@ -7,23 +7,29 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="danger" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
-                <el-button type="primary" icon="add" class="handle-del mr10" @click="delAll">添加用户</el-button>
-
-                <el-input v-model="select_word" placeholder="查找用户(输入用户电话)" class="handle-input mr10"></el-input>
+                <el-input v-model="select_phone" placeholder="查找用户(输入用户电话)" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="search" @click="search">搜索</el-button>
             </div>
-            <el-table :data="data" border class="table" ref="multipleTable" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55" align="center"></el-table-column>
+
+            <!--表格-->
+            <el-table :data="data" border class="table" ref="multipleTable">
+                <el-table-column
+                        label="状态"
+                        width="70">
+                    <template slot-scope="scope">
+                        <el-tag  :type="getonline(scope.row)=== '在线' ? 'success' : 'danger'">{{getonline(scope.row)}}</el-tag>
+                    </template>
+                </el-table-column>
+
                 <el-table-column prop="name" label="用户名" width="150">
                 </el-table-column>
-                <el-table-column prop="name" label="电话" width="180">
+                <el-table-column prop="phone" label="电话" width="180">
                 </el-table-column>
-                <el-table-column prop="address" label="邮箱" width="220">
+                <el-table-column prop="email" label="邮箱" width="220">
                 </el-table-column>
-                <el-table-column prop="date" label="上线时间" sortable width="150">
+                <el-table-column prop="logintime" label="上线时间" sortable width="150" :formatter="dateformat">
                 </el-table-column>
-                <el-table-column prop="date" label="离线时间" sortable width="150">
+                <el-table-column prop="logouttime" label="离线时间" sortable width="150" :formatter="dateformat">
                 </el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
@@ -32,24 +38,28 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
+                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next"
+                               :page-size=upagesize :total=pagecount>
                 </el-pagination>
             </div>
         </div>
 
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
-            <el-form ref="form" :model="form" label-width="50px">
-                <el-form-item label="日期">
-                    <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
-                </el-form-item>
-                <el-form-item label="姓名">
+            <el-form ref="form" :model="form" label-width="60px">
+                <el-form-item label="用户名">
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
-                <el-form-item label="地址">
-                    <el-input v-model="form.address"></el-input>
+            </el-form>
+            <el-form ref="form" :model="form" label-width="60px">
+                <el-form-item label="密码">
+                    <el-input v-model="form.password"></el-input>
                 </el-form-item>
-
+            </el-form>
+            <el-form ref="form" :model="form" label-width="60px">
+                <el-form-item label="邮箱">
+                    <el-input v-model="form.email"></el-input>
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editVisible = false">取 消</el-button>
@@ -57,14 +67,7 @@
             </span>
         </el-dialog>
 
-        <!-- 删除提示框 -->
-        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
-            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="delVisible = false">取 消</el-button>
-                <el-button type="primary" @click="deleteRow">确 定</el-button>
-            </span>
-        </el-dialog>
+
     </div>
 </template>
 
@@ -73,114 +76,209 @@
         name: 'basetable',
         data() {
             return {
-                url: './vuetable.json',
-                tableData: [],
+                url: 'http://localhost:8201/litehouse/user/readlist',
+                updateurl: 'http://localhost:8201/litehouse/user/update',
+                getcounturl: 'http://localhost:8201/litehouse/user/getcount',
+                userData: [],
+                upagesize: 20,
                 cur_page: 1,
-                multipleSelection: [],
-                select_cate: '',
-                select_word: '',
-                del_list: [],
-                is_search: false,
-                editVisible: false,
-                delVisible: false,
+                select_phone: '',
+                editVisible:false,
                 form: {
+                    id:0,
                     name: '',
-                    date: '',
-                    address: ''
+                    phone: '',
+                    password: '',
+                    email:'',
+                    iconurl:'',
+                    logintime:0,
+                    logouttime:0
                 },
-                idx: -1
+                idx: -1,
+                allusercount:0
             }
         },
         created() {
-            this.getData();
+            this.initData();
         },
         computed: {
             data() {
-                return this.tableData.filter((d) => {
-                    let is_del = false;
-                    for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.name === this.del_list[i].name) {
-                            is_del = true;
-                            break;
-                        }
-                    }
-                    if (!is_del) {
-                        if (d.address.indexOf(this.select_cate) > -1 &&
-                            (d.name.indexOf(this.select_word) > -1 ||
-                                d.address.indexOf(this.select_word) > -1)
-                        ) {
-                            return d;
-                        }
-                    }
-                })
-            }
+                return this.userData
+            },
+            // 一共有多少页，应用用另外的接口获取
+            pagecount() {
+                return this.allusercount;
+            },
         },
         methods: {
+            getonline(row, column){
+                const item = row;
+                const currentTime=new Date().getTime()/1000;
+                if (currentTime >= item.logintime && item.logouttime < item.logintime) {
+                    return "在线"
+                }else{
+                    return "离线"
+                }
+            },
             // 分页导航
             handleCurrentChange(val) {
                 this.cur_page = val;
                 this.getData();
             },
+            initData(){
+                this.getcount();
+                setTimeout(() => {
+                    this.getData()
+                }, 1000);
+            },
             // 获取 easy-mock 的模拟数据
             getData() {
                 // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
-                if (process.env.NODE_ENV === 'development') {
-                    this.url = '/ms/table/list';
-                };
+                // if (process.env.NODE_ENV === 'development') {
+                //     this.url = '/ms/table/list';
+                // };
+                let request = "{\n" +
+                    "\"start\": " + this.upagesize * (this.cur_page - 1) + ",\n" +
+                    "\"count\": " + this.upagesize + ",\n" +
+                    "\"search\": \"default\",\n" +
+                    "\"username\": \"\",\n" +
+                    "\"time_start\": 0,\n" +
+                    "\"time_end\": 0,\n" +
+                    "\"order\":\"id\",\n" +
+                    "\"info\":"+JSON.stringify(this.form)+"\n" +
+                    "}";
                 this.$axios.post(this.url, {
-                    page: this.cur_page
-                }).then((res) => {
-                    this.tableData = res.data.list;
-                })
+                    condition: request
+                }).then((response) => {
+                    this.userData = response.data;
+                });
             },
+            // 获取数据总数量
+            getcount() {
+                this.$axios.post(this.getcounturl).then((response) => {
+                    this.allusercount = parseInt(response.data);
+                    console.log("get usersize:" + this.allusercount);
+                });
+            },
+
             search() {
-                this.is_search = true;
+                let request = "{\n" +
+                    "\"start\": " + this.upagesize * (this.cur_page - 1) + ",\n" +
+                    "\"count\": " + this.upagesize + ",\n" +
+                    "\"search\": \"phone\",\n" +
+                    "\"username\": \""+this.select_phone+"\",\n" +
+                    "\"time_start\": 0,\n" +
+                    "\"time_end\": 0,\n" +
+                    "\"order\":\"id\",\n" +
+                    "\"info\":"+JSON.stringify(this.form)+"\n" +
+                    "}";
+                if (this.select_phone===""){
+                    this.getData();
+                } else{
+                    this.$axios.post(this.url, {
+                        condition: request
+                    }).then((response) => {
+                        this.userData=[];
+                        this.userData[0] = response.data;
+                    });
+                }
             },
-            formatter(row, column) {
-                return row.address;
-            },
-            filterTag(value, row) {
-                return row.tag === value;
-            },
+
+            //格式化显示日期
+            dateformat(row, column) {
+                let date = new Date(row[column.property] * 1000);
+                let y = date.getFullYear();
+                let MM = date.getMonth() + 1;
+                MM = MM < 10 ? ('0' + MM) : MM;
+                let d = date.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                let h = date.getHours();
+                h = h < 10 ? ('0' + h) : h;
+                let m = date.getMinutes();
+                m = m < 10 ? ('0' + m) : m;
+                let s = date.getSeconds();
+                s = s < 10 ? ('0' + s) : s;
+                return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
+            }
+            ,
+
             handleEdit(index, row) {
                 this.idx = index;
-                const item = this.tableData[index];
+                const item = this.userData[index];
                 this.form = {
+                    id:item.id,
                     name: item.name,
-                    date: item.date,
-                    address: item.address
-                }
+                    phone: item.phone,
+                    password: item.password,
+                    email:item.email,
+                    iconurl:item.iconurl,
+                    logintime:item.logintime,
+                    logouttime:item.logouttime
+                };
                 this.editVisible = true;
             },
-            handleDelete(index, row) {
-                this.idx = index;
-                this.delVisible = true;
-            },
-            delAll() {
-                const length = this.multipleSelection.length;
-                let str = '';
-                this.del_list = this.del_list.concat(this.multipleSelection);
-                for (let i = 0; i < length; i++) {
-                    str += this.multipleSelection[i].name + ' ';
-                }
-                this.$message.error('删除了' + str);
-                this.multipleSelection = [];
-            },
-            handleSelectionChange(val) {
-                this.multipleSelection = val;
-            },
+
             // 保存编辑
             saveEdit() {
-                this.$set(this.tableData, this.idx, this.form);
+                if (!(this.form.name === this.userData[this.idx].name)) {
+                    let request = "{\n" +
+                        "\"start\": " + this.upagesize * (this.cur_page - 1) + ",\n" +
+                        "\"count\": " + this.upagesize + ",\n" +
+                        "\"search\": \"update_username\",\n" +
+                        "\"username\": \"\",\n" +
+                        "\"time_start\": 0,\n" +
+                        "\"time_end\": 0,\n" +
+                        "\"order\":\"id\",\n" +
+                        "\"info\":"+JSON.stringify(this.form)+"\n" +
+                        "}";
+                    this.$axios.post(this.updateurl, {
+                        info: request
+                    });
+                }
+                if (!(this.form.email === this.userData[this.idx].email)) {
+                    let request = "{\n" +
+                        "\"start\": " + this.upagesize * (this.cur_page - 1) + ",\n" +
+                        "\"count\": " + this.upagesize + ",\n" +
+                        "\"search\": \"update_email\",\n" +
+                        "\"username\": \"\",\n" +
+                        "\"time_start\": 0,\n" +
+                        "\"time_end\": 0,\n" +
+                        "\"order\":\"id\",\n" +
+                        "\"info\":"+JSON.stringify(this.form)+"\n" +
+                        "}";
+                    setTimeout(() => {
+                        this.$axios.post(this.updateurl, {
+                            info: request
+                        });
+                    }, 500);
+
+                }
+                if (!(this.form.password === this.userData[this.idx].password)) {
+                    let request = "{\n" +
+                        "\"start\": " + this.upagesize * (this.cur_page - 1) + ",\n" +
+                        "\"count\": " + this.upagesize + ",\n" +
+                        "\"search\": \"update_password\",\n" +
+                        "\"username\": \"\",\n" +
+                        "\"time_start\": 0,\n" +
+                        "\"time_end\": 0,\n" +
+                        "\"order\":\"id\",\n" +
+                        "\"info\":"+JSON.stringify(this.form)+"\n" +
+                        "}";
+                    setTimeout(() => {
+                        this.$axios.post(this.updateurl, {
+                            info: request
+                        });
+                    }, 1000);
+                }
+
+                setTimeout(() => {
+                    this.getData()
+                }, 2000);
+
                 this.editVisible = false;
                 this.$message.success(`修改第 ${this.idx+1} 行成功`);
             },
-            // 确定删除
-            deleteRow(){
-                this.tableData.splice(this.idx, 1);
-                this.$message.success('删除成功');
-                this.delVisible = false;
-            }
+
         }
     }
 
