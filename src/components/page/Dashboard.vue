@@ -2,6 +2,7 @@
     <div>
         <el-row :gutter="20">
             <el-col :span="8">
+
                 <el-card shadow="hover" class="mgb20" style="height:252px;">
                     <div class="user-info">
                         <img src="../../assets/img/img.jpg" class="user-avator" alt="">
@@ -13,6 +14,7 @@
                     <div class="user-info-list">上次登录时间：<span>2018-01-01</span></div>
                     <div class="user-info-list">上次登录地点：<span>东莞</span></div>
                 </el-card>
+
                 <el-card shadow="hover" style="height:252px;">
                     <div slot="header" class="clearfix">
                         <span>客户端占比</span>
@@ -22,7 +24,9 @@
                     IOS
                     <el-progress :percentage="24.1" color="#f1e05a"></el-progress>
                 </el-card>
+
             </el-col>
+
             <el-col :span="16">
                 <el-row :gutter="20" class="mgb20">
                     <el-col :span="8">
@@ -30,7 +34,7 @@
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-lx-people grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">1234</div>
+                                    <div class="grid-num">{{usercount}}</div>
                                     <div>用户总数</div>
                                 </div>
                             </div>
@@ -41,7 +45,7 @@
                             <div class="grid-content grid-con-2">
                                 <i class="el-icon-lx-people grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">321</div>
+                                    <div class="grid-num">{{useronline}}</div>
                                     <div>当前用户在线数</div>
                                 </div>
                             </div>
@@ -52,7 +56,7 @@
                             <div class="grid-content grid-con-3">
                                 <i class="el-icon-lx-mobile grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">5000</div>
+                                    <div class="grid-num">未开发</div>
                                     <div>今日用户登录次数</div>
                                 </div>
                             </div>
@@ -65,7 +69,7 @@
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-lx-goods grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">1234</div>
+                                    <div class="grid-num">{{gatewaycount}}</div>
                                     <div>网关总数</div>
                                 </div>
                             </div>
@@ -76,7 +80,7 @@
                             <div class="grid-content grid-con-2">
                                 <i class="el-icon-lx-notice grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">321</div>
+                                    <div class="grid-num">{{gatewayonline}}</div>
                                     <div>当前网关在线数</div>
                                 </div>
                             </div>
@@ -87,7 +91,7 @@
                             <div class="grid-content grid-con-3">
                                 <i class="el-icon-lx-notice grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">3.21G</div>
+                                    <div class="grid-num">未开发</div>
                                     <div>当前服务占用内存总量</div>
                                 </div>
                             </div>
@@ -99,17 +103,22 @@
                 </el-card>
             </el-col>
         </el-row>
+
+
         <el-row :gutter="20">
+
             <el-col :span="12">
                 <el-card shadow="hover">
                     <schart ref="bar" class="schart" canvasId="bar" :data="data" type="bar" :options="options"></schart>
                 </el-card>
             </el-col>
+
             <el-col :span="12">
                 <el-card shadow="hover">
                     <schart ref="line" class="schart" canvasId="line" :data="data" type="line" :options="options2"></schart>
                 </el-card>
             </el-col>
+
         </el-row>
     </div>
 </template>
@@ -121,31 +130,11 @@
         name: 'dashboard',
         data() {
             return {
+                usercount:0,
+                gatewaycount:0,
+                useronline:0,
+                gatewayonline:0,
                 name: localStorage.getItem('ms_username'),
-                todoList: [{
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要写100行代码加几个bug吧',
-                        status: false,
-                    }, {
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要修复100个bug',
-                        status: true,
-                    },
-                    {
-                        title: '今天要写100行代码加几个bug吧',
-                        status: true,
-                    }
-                ],
                 data: [{
                         name: '2018/09/04',
                         value: 1083
@@ -190,7 +179,14 @@
                     bgColor: '#F5F8FD',
                     bottomPadding: 30,
                     topPadding: 30
-                }
+                },
+                readgatewaycounturl:"http://localhost:8201/litehouse/gateway/getcount",
+                readusercounturl:"http://localhost:8201/litehouse/user/getcount",
+                readuseronlineurl:"http://localhost:8201/litehouse/user/readonlinelist",
+                readgatewayonlineurl:"http://localhost:8201/litehouse/gateway/readonlinelist",
+                debug1:[],
+                debug2:[],
+                clearIntervalFun:null
             }
         },
         components: {
@@ -204,6 +200,8 @@
         created(){
             this.handleListener();
             this.changeDate();
+            this.getData();
+            this.recycleread();
         },
         activated(){
             this.handleListener();
@@ -212,7 +210,41 @@
             window.removeEventListener('resize', this.renderChart);
             bus.$off('collapse', this.handleBus);
         },
+        beforeDestroy(){
+            clearInterval(this.clearIntervalFun)
+        },
         methods: {
+            recycleread(){
+                this.clearIntervalFun=setInterval(()=>{
+                    this.getData()
+                },60*1000);
+            },
+            getData(){
+                this.$axios.post(this.readgatewaycounturl).then((response) => {
+                    this.gatewaycount = parseInt(response.data);
+                });
+                setTimeout(()=>{
+                    this.$axios.post(this.readusercounturl).then((response) => {
+                        this.usercount = parseInt(response.data);
+                    });
+                },500);
+                setTimeout(()=>{
+                    this.$axios.post(this.readuseronlineurl,{
+                        condition:""
+                    }).then((response) => {
+                        this.debug1=response.data;
+                        this.useronline = response.data.length;
+                    });
+                },1000);
+                setTimeout(()=>{
+                    this.$axios.post(this.readgatewayonlineurl,{
+                        condition:""
+                    }).then((response) => {
+                        this.gatewayonline = response.data.ids.length;
+                        this.debug2=response.data
+                    });
+                },1500);
+            },
             changeDate(){
                 const now = new Date().getTime();
                 this.data.forEach((item, index) => {
@@ -220,6 +252,7 @@
                     item.name = `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`
                 })
             },
+
             handleListener(){
                 bus.$on('collapse', this.handleBus);
                 // 调用renderChart方法对图表进行重新渲染
