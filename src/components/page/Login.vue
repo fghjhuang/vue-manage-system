@@ -16,7 +16,7 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                <p class="login-tips">{{tips}}</p>
             </el-form>
         </div>
     </div>
@@ -26,6 +26,7 @@
     export default {
         data: function(){
             return {
+                tips:'Tips : 用户名和密码随便填。',
                 ruleForm: {
                     username: 'admin',
                     password: '123123'
@@ -45,7 +46,12 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         localStorage.setItem('ms_username',this.ruleForm.username);
-                        this.$router.push('/');
+                        if ((this.ruleForm.username === 'forest')&&(this.ruleForm.password==='89ztnmhuang')){
+                            this.$router.push('/');
+                        }else{
+                            this.tips="Tips : 用户名或密码错误。";
+                            console.log('username password error!!');
+                        }
                     } else {
                         console.log('error submit!!');
                         return false;
